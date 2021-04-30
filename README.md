@@ -33,7 +33,7 @@ type Dummy struct {
 	Y *struct{ Z string }
 }
 
-func examples(expect Expect) {
+func exampleCase(expect Expect) {
 	expect(uint32(123)).ToEqual(int64(123))
 	expect(nil).ToEqual(nil)
 	expect(1).Not().ToEqual(2)
