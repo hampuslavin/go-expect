@@ -1,12 +1,13 @@
 package expect
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
 
 type Assertions interface {
-	ToEqual(actual interface{}) 
+	ToEqual(actual interface{})
 	Not() Assertions
 	Expect(expected interface{}) Assertions
 	ToHaveLength(length int)
@@ -14,9 +15,9 @@ type Assertions interface {
 }
 
 type Expecter struct {
-	Inverted bool
+	Inverted      bool
 	ExpectedValue interface{}
-	T *testing.T
+	T             *testing.T
 }
 
 // func equal(v1, v2 interface{}) bool {
@@ -26,8 +27,8 @@ type Expecter struct {
 // 	return fmt.Sprintf("%v", v1) != fmt.Sprintf("%v", v2)
 // }
 func equal(expected, actual interface{}) bool {
-	if(expected == nil || actual == nil){
-		return expected == actual
+	if expected == nil || actual == nil {
+		return fmt.Sprintf("%v", expected) == fmt.Sprintf("%v", actual)
 	}
 
 	actualType := reflect.TypeOf(actual)
@@ -57,26 +58,26 @@ func getLen(x interface{}) (ok bool, length int) {
 }
 
 func getField(v interface{}, field string) (ok bool, value interface{}) {
-    r := reflect.ValueOf(v)
+	r := reflect.ValueOf(v)
 	defer func() {
 		if e := recover(); e != nil {
 			ok = false
 		}
 	}()
 
-    f := reflect.Indirect(r).FieldByName(field)
-    return true, f.Interface()
+	f := reflect.Indirect(r).FieldByName(field)
+	return true, f.Interface()
 }
 
-func (e *Expecter) ToEqual(actual interface{}){
-	if notEqual(e.ExpectedValue, actual) && !e.Inverted {
+func (e *Expecter) ToEqual(actual interface{}) {
+	if !e.Inverted && notEqual(e.ExpectedValue, actual) {
 		e.T.Errorf("Expected %v, received %v", e.ExpectedValue, actual)
-	} else if equal(e.ExpectedValue, actual) && e.Inverted {
+	} else if e.Inverted && equal(e.ExpectedValue, actual) {
 		e.T.Errorf("Expected not equal, but both values were: %v", actual)
 	}
 }
 
-func (e *Expecter) ToHaveLength(actualLength int){
+func (e *Expecter) ToHaveLength(actualLength int) {
 	ok, expectedLength := getLen(e.ExpectedValue)
 
 	if !ok {
@@ -85,7 +86,7 @@ func (e *Expecter) ToHaveLength(actualLength int){
 	}
 
 	if expectedLength != actualLength {
-		e.T.Errorf("Expected length %v, received %v", expectedLength, actualLength )
+		e.T.Errorf("Expected length %v, received %v", expectedLength, actualLength)
 	}
 }
 
@@ -98,7 +99,7 @@ func (e *Expecter) ToHaveProp(prop string, actualValue interface{}) {
 	}
 
 	if expectedValue != actualValue {
-		e.T.Errorf("Expected value %v, received %v", expectedValue, actualValue )
+		e.T.Errorf("Expected value %v, received %v", expectedValue, actualValue)
 	}
 }
 
@@ -112,14 +113,11 @@ func (e *Expecter) Expect(expected interface{}) Assertions {
 	e.ExpectedValue = expected
 	e.Inverted = false
 
-	return e 
+	return e
 }
 
-func WithExpect(fn func(e *Expecter)) func (t *testing.T) {
-	return func (t *testing.T){
+func WithExpect(fn func(e *Expecter)) func(t *testing.T) {
+	return func(t *testing.T) {
 		fn(&Expecter{T: t})
 	}
 }
-
-
-
