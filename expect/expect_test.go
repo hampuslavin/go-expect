@@ -15,6 +15,8 @@ type Dummy struct {
 
 func examples(expect Expect) {
 	expect(uint32(123)).ToEqual(int64(123))
+	expect(123).ToBe(123)
+	expect("hello").ToBe("hello")
 	expect(nil).ToEqual(nil)
 	expect(1).Not().ToEqual(2)
 

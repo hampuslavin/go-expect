@@ -11,6 +11,7 @@ type Assertions interface {
 	ToHaveLength(length int)
 	ToHaveProp(prop string, value interface{})
 	ToBeNil()
+	ToBe(actual interface{})
 }
 
 type Expecter struct {
@@ -72,6 +73,14 @@ func (e *Expecter) ToEqual(actual interface{}) {
 	if !e.Inverted && notEqual(e.ExpectedValue, actual) {
 		e.T.Errorf("Expected %v, received %v", e.ExpectedValue, actual)
 	} else if e.Inverted && equal(e.ExpectedValue, actual) {
+		e.T.Errorf("Expected not equal, but both values were: %v", actual)
+	}
+}
+
+func (e *Expecter) ToBe(actual interface{}) {
+	if !e.Inverted && e.ExpectedValue != actual {
+		e.T.Errorf("Expected %v, received %v", e.ExpectedValue, actual)
+	} else if e.Inverted && e.ExpectedValue == actual {
 		e.T.Errorf("Expected not equal, but both values were: %v", actual)
 	}
 }
