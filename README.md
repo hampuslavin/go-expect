@@ -42,7 +42,7 @@ func exampleCase(e *Expecter){
 	e.Expect(list).ToHaveLength(2)
 
 	dummy1 := Dummy{X: "123"}
-	e.Expect(dummy1).ToHaveProp("X", "hello!")
+	e.Expect(dummy1).ToHaveProp("X", "123")
 
 	dummy2 := Dummy{X: "123"}
 	e.Expect(dummy1).ToEqual(dummy2)
