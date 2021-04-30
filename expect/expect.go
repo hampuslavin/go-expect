@@ -12,6 +12,7 @@ type Assertions interface {
 	Expect(expected interface{}) Assertions
 	ToHaveLength(length int)
 	ToHaveProp(prop string, value interface{})
+	ToBeNil()
 }
 
 type Expecter struct {
@@ -100,6 +101,12 @@ func (e *Expecter) ToHaveProp(prop string, actualValue interface{}) {
 
 	if expectedValue != actualValue {
 		e.T.Errorf("Expected value %v, received %v", expectedValue, actualValue)
+	}
+}
+
+func (e *Expecter) ToBeNil() {
+	if !reflect.ValueOf(e.ExpectedValue).IsNil() {
+		e.T.Errorf("Expected non-nil value %v to be nil", e.ExpectedValue)
 	}
 }
 

@@ -19,7 +19,7 @@ func examples(e *Expecter) {
 	e.Expect(1).Not().ToEqual(2)
 
 	Y := Dummy{}.Y
-	e.Expect(Y).ToEqual(nil)
+	e.Expect(Y).ToBeNil()
 
 	list := [2]int{2, 3}
 	e.Expect(list).ToHaveLength(2)
