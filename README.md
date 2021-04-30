@@ -6,9 +6,9 @@ NOTE: This library is incomplete and should not be used in production
 
 ## Motivation
 
-I use it for my hobby projects that do not have such high demands on being able to test everything.
-
 Writing an assertion library is a great way to start learning a language, which I'm currently doing with go. I really enjoy writing tests in [jest](https://github.com/facebook/jest) and thought it would be nice to have something similar for my go projects.
+
+I use this for hobby projects that do not have such high demands on being able to test everything.
 
 ## Installation
 
