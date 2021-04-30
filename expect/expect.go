@@ -1,21 +1,19 @@
 package expect
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
 
 type Assertions interface {
-	ToEqual(actual interface{})
-	Not() Assertions
-	Expect(expected interface{}) Assertions
-	ToHaveLength(length int)
-	ToHaveProp(prop string, value interface{})
-	ToBeNil()
+	toEqual(actual interface{})
+	not() Assertions
+	toHaveLength(length int)
+	toHaveProp(prop string, value interface{})
+	toBeNil()
 }
 
-type Expecter struct {
+type expecter struct {
 	Inverted      bool
 	ExpectedValue interface{}
 	T             *testing.T
@@ -29,7 +27,7 @@ type Expecter struct {
 // }
 func equal(expected, actual interface{}) bool {
 	if expected == nil || actual == nil {
-		return fmt.Sprintf("%v", expected) == fmt.Sprintf("%v", actual)
+		return expected == actual
 	}
 
 	actualType := reflect.TypeOf(actual)
@@ -70,7 +68,7 @@ func getField(v interface{}, field string) (ok bool, value interface{}) {
 	return true, f.Interface()
 }
 
-func (e *Expecter) ToEqual(actual interface{}) {
+func (e *expecter) toEqual(actual interface{}) {
 	if !e.Inverted && notEqual(e.ExpectedValue, actual) {
 		e.T.Errorf("Expected %v, received %v", e.ExpectedValue, actual)
 	} else if e.Inverted && equal(e.ExpectedValue, actual) {
@@ -78,7 +76,7 @@ func (e *Expecter) ToEqual(actual interface{}) {
 	}
 }
 
-func (e *Expecter) ToHaveLength(actualLength int) {
+func (e *expecter) toHaveLength(actualLength int) {
 	ok, expectedLength := getLen(e.ExpectedValue)
 
 	if !ok {
@@ -91,7 +89,7 @@ func (e *Expecter) ToHaveLength(actualLength int) {
 	}
 }
 
-func (e *Expecter) ToHaveProp(prop string, actualValue interface{}) {
+func (e *expecter) toHaveProp(prop string, actualValue interface{}) {
 	ok, expectedValue := getField(e.ExpectedValue, prop)
 
 	if !ok {
@@ -104,27 +102,29 @@ func (e *Expecter) ToHaveProp(prop string, actualValue interface{}) {
 	}
 }
 
-func (e *Expecter) ToBeNil() {
+func (e *expecter) toBeNil() {
 	if !reflect.ValueOf(e.ExpectedValue).IsNil() {
 		e.T.Errorf("Expected non-nil value %v to be nil", e.ExpectedValue)
 	}
 }
 
-func (e *Expecter) Not() Assertions {
+func (e *expecter) not() Assertions {
 	e.Inverted = true
 
 	return e
 }
 
-func (e *Expecter) Expect(expected interface{}) Assertions {
-	e.ExpectedValue = expected
-	e.Inverted = false
+type Expect func(expected interface{}) Assertions
 
-	return e
+func getExpect(t *testing.T) Expect {
+
+	return func(expected interface{}) Assertions {
+		return &expecter{ExpectedValue: expected, Inverted: false, T: t}
+	}
 }
 
-func WithExpect(fn func(e *Expecter)) func(t *testing.T) {
+func WithExpect(fn func(e Expect)) func(t *testing.T) {
 	return func(t *testing.T) {
-		fn(&Expecter{T: t})
+		fn(getExpect(t))
 	}
 }
