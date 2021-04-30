@@ -6,11 +6,11 @@ import (
 )
 
 type Assertions interface {
-	toEqual(actual interface{})
-	not() Assertions
-	toHaveLength(length int)
-	toHaveProp(prop string, value interface{})
-	toBeNil()
+	ToEqual(actual interface{})
+	Not() Assertions
+	ToHaveLength(length int)
+	ToHaveProp(prop string, value interface{})
+	ToBeNil()
 }
 
 type expecter struct {
@@ -68,7 +68,7 @@ func getField(v interface{}, field string) (ok bool, value interface{}) {
 	return true, f.Interface()
 }
 
-func (e *expecter) toEqual(actual interface{}) {
+func (e *expecter) ToEqual(actual interface{}) {
 	if !e.Inverted && notEqual(e.ExpectedValue, actual) {
 		e.T.Errorf("Expected %v, received %v", e.ExpectedValue, actual)
 	} else if e.Inverted && equal(e.ExpectedValue, actual) {
@@ -76,7 +76,7 @@ func (e *expecter) toEqual(actual interface{}) {
 	}
 }
 
-func (e *expecter) toHaveLength(actualLength int) {
+func (e *expecter) ToHaveLength(actualLength int) {
 	ok, expectedLength := getLen(e.ExpectedValue)
 
 	if !ok {
@@ -89,7 +89,7 @@ func (e *expecter) toHaveLength(actualLength int) {
 	}
 }
 
-func (e *expecter) toHaveProp(prop string, actualValue interface{}) {
+func (e *expecter) ToHaveProp(prop string, actualValue interface{}) {
 	ok, expectedValue := getField(e.ExpectedValue, prop)
 
 	if !ok {
@@ -102,13 +102,13 @@ func (e *expecter) toHaveProp(prop string, actualValue interface{}) {
 	}
 }
 
-func (e *expecter) toBeNil() {
+func (e *expecter) ToBeNil() {
 	if !reflect.ValueOf(e.ExpectedValue).IsNil() {
 		e.T.Errorf("Expected non-nil value %v to be nil", e.ExpectedValue)
 	}
 }
 
-func (e *expecter) not() Assertions {
+func (e *expecter) Not() Assertions {
 	e.Inverted = true
 
 	return e

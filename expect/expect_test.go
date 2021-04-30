@@ -14,22 +14,22 @@ type Dummy struct {
 }
 
 func examples(expect Expect) {
-	expect(uint32(123)).toEqual(int64(123))
-	expect(nil).toEqual(nil)
-	expect(1).not().toEqual(2)
+	expect(uint32(123)).ToEqual(int64(123))
+	expect(nil).ToEqual(nil)
+	expect(1).Not().ToEqual(2)
 
 	Y := Dummy{}.Y
-	expect(Y).toBeNil()
+	expect(Y).ToBeNil()
 
 	list := [2]int{2, 3}
-	expect(list).toHaveLength(2)
+	expect(list).ToHaveLength(2)
 
 	dummy1 := Dummy{X: "123"}
-	expect(dummy1).toHaveProp("X", "123")
+	expect(dummy1).ToHaveProp("X", "123")
 
 	dummy2 := Dummy{X: "123"}
-	expect(dummy1).toEqual(dummy2)
+	expect(dummy1).ToEqual(dummy2)
 
 	dummy3 := Dummy{X: "hello"}
-	expect(dummy1).not().toEqual(dummy3)
+	expect(dummy1).Not().ToEqual(dummy3)
 }
