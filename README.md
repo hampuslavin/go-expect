@@ -25,7 +25,7 @@ import (
 )
 
 func TestSuite(t *testing.T){
-	t.Run("examples", WithExpect(exampleCase))
+	t.Run("examples", expect.WithExpect(exampleCase))
 }
 
 type Dummy struct {
@@ -33,7 +33,7 @@ type Dummy struct {
 	Y *struct{ Z string }
 }
 
-func examples(e *Expecter) {
+func examples(e *expect.Expecter) {
 	e.Expect(uint32(123)).ToEqual(int64(123))
 	e.Expect(nil).ToEqual(nil)
 	e.Expect(1).Not().ToEqual(2)
