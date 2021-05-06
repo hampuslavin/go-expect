@@ -28,6 +28,7 @@ func examples(expect Expect) {
 
 	dummy1 := Dummy{X: "123"}
 	expect(dummy1).ToHaveProp("X", "123")
+	// expect(dummy1).Not().ToBeNil()
 
 	dummy2 := Dummy{X: "123"}
 	expect(dummy1).ToEqual(dummy2)

@@ -15,9 +15,9 @@ type Assertions interface {
 }
 
 type Expecter struct {
-	Inverted      bool
-	ExpectedValue interface{}
-	T             *testing.T
+	Inverted    bool
+	ActualValue interface{}
+	T           *testing.T
 }
 
 // func equal(v1, v2 interface{}) bool {
@@ -35,10 +35,10 @@ func equal(expected, actual interface{}) bool {
 	if actualType == nil {
 		return false
 	}
-	expectedValue := reflect.ValueOf(expected)
-	if expectedValue.IsValid() && expectedValue.Type().ConvertibleTo(actualType) {
+	ActualValue := reflect.ValueOf(expected)
+	if ActualValue.IsValid() && ActualValue.Type().ConvertibleTo(actualType) {
 		// Attempt comparison after type conversion
-		return reflect.DeepEqual(expectedValue.Convert(actualType).Interface(), actual)
+		return reflect.DeepEqual(ActualValue.Convert(actualType).Interface(), actual)
 	}
 
 	return false
@@ -69,52 +69,55 @@ func getField(v interface{}, field string) (ok bool, value interface{}) {
 	return true, f.Interface()
 }
 
-func (e *Expecter) ToEqual(actual interface{}) {
-	if !e.Inverted && notEqual(e.ExpectedValue, actual) {
-		e.T.Errorf("Expected %v, received %v", e.ExpectedValue, actual)
-	} else if e.Inverted && equal(e.ExpectedValue, actual) {
-		e.T.Errorf("Expected not equal, but both values were: %v", actual)
+func (e *Expecter) ToEqual(expected interface{}) {
+	if !e.Inverted && notEqual(e.ActualValue, expected) {
+		e.T.Errorf("Expected %v, received %v", e.ActualValue, expected)
+	} else if e.Inverted && equal(e.ActualValue, expected) {
+		e.T.Errorf("Expected not equal, but both values were: %v", expected)
 	}
 }
 
-func (e *Expecter) ToBe(actual interface{}) {
-	if !e.Inverted && e.ExpectedValue != actual {
-		e.T.Errorf("Expected %v, received %v", e.ExpectedValue, actual)
-	} else if e.Inverted && e.ExpectedValue == actual {
-		e.T.Errorf("Expected not equal, but both values were: %v", actual)
+func (e *Expecter) ToBe(expected interface{}) {
+	if !e.Inverted && e.ActualValue != expected {
+		e.T.Errorf("Expected %v, received %v", expected, e.ActualValue)
+	} else if e.Inverted && e.ActualValue == expected {
+		e.T.Errorf("Expected not equal, but both values were: %v", expected)
 	}
 }
 
-func (e *Expecter) ToHaveLength(actualLength int) {
-	ok, expectedLength := getLen(e.ExpectedValue)
+func (e *Expecter) ToHaveLength(expectedLength int) {
+	ok, actualLength := getLen(e.ActualValue)
 
 	if !ok {
-		e.T.Errorf("Type %T does not support length", e.ExpectedValue)
+		e.T.Errorf("Type %T does not support length", e.ActualValue)
 		return
 	}
 
-	if expectedLength != actualLength {
+	if actualLength != expectedLength {
 		e.T.Errorf("Expected length %v, received %v", expectedLength, actualLength)
 	}
 }
 
-func (e *Expecter) ToHaveProp(prop string, actualValue interface{}) {
-	ok, expectedValue := getField(e.ExpectedValue, prop)
+func (e *Expecter) ToHaveProp(prop string, expectedValue interface{}) {
+	ok, actualValue := getField(e.ActualValue, prop)
 
 	if !ok {
-		e.T.Errorf("Type %T does not have prop %v", e.ExpectedValue, prop)
+		e.T.Errorf("Type %T does not have prop %v", e.ActualValue, prop)
 		return
 	}
 
-	if expectedValue != actualValue {
+	if actualValue != expectedValue {
 		e.T.Errorf("Expected value %v, received %v", expectedValue, actualValue)
 	}
 }
 
 func (e *Expecter) ToBeNil() {
-	if !reflect.ValueOf(e.ExpectedValue).IsNil() {
-		e.T.Errorf("Expected non-nil value %v to be nil", e.ExpectedValue)
+	if !e.Inverted && !reflect.ValueOf(e.ActualValue).IsNil() {
+		e.T.Errorf("Expected non-nil value %v to be nil", e.ActualValue)
 	}
+	// else if e.Inverted && reflect.ValueOf(e.ActualValue).IsNil() {
+	// 	e.T.Errorf("Expected nil value to not be nil")
+	// }
 }
 
 func (e *Expecter) Not() Assertions {
@@ -128,7 +131,7 @@ type Expect func(expected interface{}) Assertions
 func getExpect(t *testing.T) Expect {
 
 	return func(expected interface{}) Assertions {
-		return &Expecter{ExpectedValue: expected, Inverted: false, T: t}
+		return &Expecter{ActualValue: expected, Inverted: false, T: t}
 	}
 }
 
